@@ -9,9 +9,9 @@ demoApp.controller('MainController', function ($scope, $http){
 
     getTask = function(id, idx){        
         $scope.listeData.idListe = id;      
-		$http.post('/getTask', $scope.listeData)
-			.success(function(data) {
-                $scope.tache[idx] = data;
+		    $http.post('/getTask', $scope.listeData)
+			    .success(function(data) {
+            $scope.tache[idx] = data;
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
@@ -19,6 +19,7 @@ demoApp.controller('MainController', function ($scope, $http){
     }
     getListe = function(){
         $http.get('/getList').then(function(resp){
+            console.log($scope.Liste);
             $scope.Liste = resp.data
             i=0;
             for(l of resp.data){
@@ -27,14 +28,18 @@ demoApp.controller('MainController', function ($scope, $http){
             }
         });    
     }
+
     $http.get('/getList').then(function(resp){
+
         $scope.Liste = resp.data
+        console.log($scope.Liste);
         i=0;
         for(l of resp.data){
-            getTask(l._id, i);
+            getTask(l._id,i);
             i++;
         }
-    });    
+    }); 
+    
     
     $scope.createToDo = function(id){
         console.log($scope.nameTask.text);
@@ -87,6 +92,21 @@ demoApp.controller('MainController', function ($scope, $http){
         });
     }
 
+    $scope.createList = function(id){
+        console.log($scope.nameList.text);
+        var req = {
+            name : $scope.nameTask.text,
+            idList : id
+        };
+		$http.post('/createList',req)
+		.success(function(data) {
+            $scope.nameList="";
+           getListe();
+		})
+		.error(function(data) {
+			console.log('Error: ' + data);
+        });   
+    }
 
     $scope.deleteList = function(id){     
         var req = {
@@ -101,21 +121,18 @@ demoApp.controller('MainController', function ($scope, $http){
 			});
     }
 
-    $scope.createList = function(id){
-        console.log($scope.nameList.text);
-        var req = {
-            name : $scope.nameTask.text,
-            idList : id
-        };
-		$http.post('/createList',req)
-		.success(function(data) {
-            $scope.nameList={};
-           getListe();
-		})
-		.error(function(data) {
-			console.log('Error: ' + data);
-        });   
-    }
 
-
-});
+    $scope.updateList = function(){
+        $scope.updateListe.identifiant= $scope.toggleU._id;
+        if($scope.updateListe.text!=undefined){
+            $http.post('/updateList', $scope.updateListe).success(function(data) { 
+                $scope.updateListe = {}; 
+                getListe();
+                $scope.toggleU = {};
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+        }
+    };
+})
