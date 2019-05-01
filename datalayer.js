@@ -14,6 +14,15 @@ var datalayer = {
         });
     },
 
+    login : function(user, cb){
+        var query={$and : [{username : user.username}, {password : user.password}]};
+        db.collection("Users").find(query).toArray(function(err,docs){
+            cb(docs);
+        });
+    },
+
+
+    
     getTask : function(id, cb){
         var query={idList : id._id};
         db.collection("ToDo").find(query).toArray(function(err,docs){
@@ -46,6 +55,11 @@ var datalayer = {
             cb();
         });
     },
+    createList : function(list, cb){
+        db.collection("List").insertOne(list,function(err, result){
+            cb();
+        });
+    },
 
     deleteList : function(id, cb){
         var query={_id : new mongodb.ObjectID(id._id)};
@@ -53,7 +67,13 @@ var datalayer = {
             cb();
         });
     },
-  
+
+    updateList : function(id, list, cb){
+        var query={_id : new mongodb.ObjectID(id._id)};
+        db.collection("List").updateOne(query, {$set : list}, function(err, result){
+            cb();
+        });
+    }
 };
 
 module.exports=datalayer;

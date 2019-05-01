@@ -14,6 +14,18 @@ datalayer.init(function(){
     app.listen(port);
 });
 
+
+app.post('/login', function(req,res){
+    var user = {
+        username : req.body.username,
+        password : req.body.password
+    };
+    datalayer.login(user,function(dtSet){
+        res.send(dtSet);
+    })
+})
+
+
 app.post('/getTask',function(req,res){
     var id = {_id : req.body.idListe}
     datalayer.getTask(id, function(dtSet){
@@ -73,18 +85,12 @@ app.post('/checkToDo', function(req,res){
 });
 
 
-app.post('/deleteList', function(req, res){
-    var id = { _id : req.body.identifiant  };
-    datalayer.deleteList(id, function(){
-        res.send({success : true});
-    })
-});
-
 
 app.post('/createList',function(req,res){
-    if(req.body && typeof req.body.name != 'undefined' ){  
+    if( req.body.nameList != 'undefined' ){  
         var Liste = {
-            name : req.body.name,
+            name : req.body.nameList,
+            owner: req.body.owner
             
          };    
         datalayer.createList(Liste, function(){
@@ -92,13 +98,33 @@ app.post('/createList',function(req,res){
         });
     }else{
 
-            res.send({
-                success : false,
-                errorCode : "PARAM_MISSING"
-            });
-        }
+         res.send({
+            success : false,
+            errorCode : "PARAM_MISSING"
+        });
+    }
     
 
         
 
-})
+});
+
+app.post('/deleteList', function(req, res){
+    var id = { _id : req.body.identifiant  };
+    datalayer.deleteList(id, function(){
+        res.send({success : true});
+    });
+});
+
+
+app.post('/updateList', function(req,res){
+    var id = { _id : req.body.identifiant };
+    var Liste = {name : req.body.text};
+    datalayer.updateList(id,Liste,function(){
+            res.send({success : true});
+
+    });
+});
+
+
+
