@@ -14,15 +14,18 @@
             <!----div class="card-columns"-->
             <div  ng-repeat="list in Liste"> <!--- class= "card center-block box form group col-xs-3"--->
                 <!--div class="card-header"-->
-                <span class="glyphicon glyphicon-trash trash" ng-click="deleteList(list._id)">supprimer</span> 
+                
                 <p class="center-block titre">{{list.name}}</p>     
-                <div class="row">
+                <div> <button class="glyphicon glyphicon-trash trash" ng-click="deleteList(list._id)">supprimer</button> 
+                </div>
+                <div class="row" id="update"  style="display:none;" ng-model="toggleU">
                     <div class="col-sm-5">
                         <input  placeholder="modifier nom" class="input-sm form-control col-sm-2" ng-model="updateListe.text">
                     </div>
                     <div class="col-sm-2">
-                        <span class="glyphicon glyphicon-pencil pencil grey" ng-click="updateList('5cafd8e91c9d440000283264')"></span>
-                    </div>    
+                        <button class="glyphicon glyphicon-pencil pencil grey" ng-click="updateList()">modifier liste</button>
+                    </div> 
+               
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled"  ng-model="listeData">
@@ -35,6 +38,9 @@
                                     </div>
                                     <div class="col-sm-8">
                                     <p class="name">{{task.name}} </p>
+                                    </div>
+                                     <div class="col-2">
+                                        <button class="fas pencil fa-pencil-alt right btn" onClick="$('#updateTaskP').toggle();" ng-click="updateTaskToggle(taskP)"></button>
                                     </div>
                                 </div> 
                                 <div class="col-sm-4">
@@ -63,7 +69,7 @@
                                 <input class="form-control" placeholder="ajouter" ng-model="nameTask.text" type="text">
                             </div>
                             <div class="col-sm-2">
-                                <button class="bouton" type="submit" ng-click="createToDo(list._id)">creer tache</button>
+                                <button class="bouton" type="submit" ng-click="createToDo(listP._id)">creer tache</button>
                             </div>
                         </div>
                     </form>

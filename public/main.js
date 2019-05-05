@@ -1,11 +1,18 @@
 var demoApp = angular.module('TodoApp',[]); 
+var serv = "localhost:8000";
 
 demoApp.controller('MainController', function ($scope, $http){ 
     $scope.updateData = {};
     $scope.updateListe = {};
     $scope.listeData = {};
+    $scope.listeDataP = {};
     $scope.tache = [];
+    $scope.tacheP = [];
+
     $scope.nameTask={};
+    $scope.user = {};
+    $scope.collab = {};
+
 
     getTask = function(id, idx){        
         $scope.listeData.idListe = id;      
@@ -17,8 +24,23 @@ demoApp.controller('MainController', function ($scope, $http){
 				console.log('Error: ' + data);
             });
     }
+
+    
+    getTaskP = function(id, idx){        
+        $scope.listeDataP.idListe = id;      
+		$http.post('/getTask', $scope.listeDataP)
+			.success(function(data) {
+                $scope.tacheP[idx] = data;
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+            });
+    }
     getListe = function(){
-        $http.get('/getList').then(function(resp){
+        $scope.user =$cookies;
+        var req = {owner : $cookies.id};
+
+        $http.get('/getList',req).then(function(resp){
             console.log($scope.Liste);
             $scope.Liste = resp.data
             i=0;
@@ -27,8 +49,8 @@ demoApp.controller('MainController', function ($scope, $http){
                 i++;
             }
         });    
-    }
-
+    
+//à enlever
     $http.get('/getList').then(function(resp){
 
         $scope.Liste = resp.data
@@ -38,8 +60,46 @@ demoApp.controller('MainController', function ($scope, $http){
             getTask(l._id,i);
             i++;
         }
-    }); 
-    
+    });//
+    var req = {collaborator : $cookies.id};
+    $http.post('/getListP',req).then(function(resp){
+        console.log(" 2 : ", resp);
+        $scope.ListeP = resp.data;
+        i=0;
+        for(l of resp.data){
+            getTaskP(l._id, i);
+            console.log(" resp : ", resp);
+            i++;
+        }
+    });    
+}
+
+//lancée au chargement de la page: check des cookies, récupération des listes
+if($cookies.user!=null){
+    $scope.user =$cookies;
+    var req = {owner : $cookies.id};
+    $http.post('/getList',req).then(function(resp){
+        console.log(" 1 : ",resp);
+        $scope.Liste = resp.data;
+        i=0;
+        for(l of resp.data){
+            getTask(l._id, i);
+            i++;
+        }
+    });
+    var req = {collaborator : $cookies.id};
+    $http.post('/getListP',req).then(function(resp){
+        console.log(" 2 : ", resp);
+        $scope.ListeP = resp.data;
+        i=0;
+        for(l of resp.data){
+            getTaskP(l._id, i);
+            i++;
+        }
+    });
+}else{
+    document.location.href= serv + "/pageconn.html";
+    } 
     
     $scope.createToDo = function(id){
         console.log($scope.nameTask.text);
@@ -83,29 +143,33 @@ demoApp.controller('MainController', function ($scope, $http){
 
     $scope.updateToDo = function(id, idListe){
         $scope.updateData.identifiant = id;
-        $http.post('/updateToDo', $scope.updateData).success(function(data) {    
-            getListe();
-            $scope.updateData = {}
-        })
-        .error(function(data) {
-            console.log('Error: ' + data);
-        });
+        if($scope.updateData.text!=undefined){
+            $http.post('/updateToDo', $scope.updateData).success(function(data) {    
+                getListe();
+                $scope.updateData = {}
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+        }
     }
 
     $scope.createList = function(id){
         console.log($scope.nameList.text);
-        var req = {
-            name : $scope.nameTask.text,
-            idList : id
-        };
-		$http.post('/createList',req)
-		.success(function(data) {
-            $scope.nameList="";
-           getListe();
-		})
-		.error(function(data) {
-			console.log('Error: ' + data);
-        });   
+        if($scope.nameList!= undefined){
+            var req = {
+                nameList : $scope.nameList,
+                owner : $cookies.id
+            };
+            $http.post('/createList',req)
+            .success(function(data) {
+                $scope.nameList="";
+                getListe();
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });   
+        }
     }
 
     $scope.deleteList = function(id){     
@@ -123,12 +187,12 @@ demoApp.controller('MainController', function ($scope, $http){
 
 
     $scope.updateList = function(){
-        $scope.updateListe.identifiant= $scope.toggleU._id;
+        $scope.updateListe.identifiant= $scope._id;
         if($scope.updateListe.text!=undefined){
             $http.post('/updateList', $scope.updateListe).success(function(data) { 
                 $scope.updateListe = {}; 
                 getListe();
-                $scope.toggleU = {};
+               
             })
             .error(function(data) {
                 console.log('Error: ' + data);

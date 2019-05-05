@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" ng-app="login">
+    <head>
+        <meta  charset="utf-8">
+        <title>Connection</title>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular-cookies.js"></script>
+        <script src="main.js"></script>
+        <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/build.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <link href="style.css" rel="stylesheet" media="all" type="text/css">
+
+        
+    </head>
+    <body ng-controller="ConnectionController">
+        <div class="container">
+            <div class="box co">
+                        <form>
+                                <h3>sign in</h3>
+                                <input class="form-control" placeholder="nom" ng-model="username">
+                                <input class="form-control" type="password" placeholder="password" ng-model="password">
+                                <button class="btn btn-rd btn-co btn-blue" type="submit" ng-click="auth()">sign in</button>
+                            </form>
+                
+                            <form>
+                                <h3>Or sign up</h3>
+                                <input class="form-control" placeholder="nom" ng-model="usernameCreate">
+                                <input class="form-control" type="password" placeholder="password" ng-model="passwordCreate">
+                                <button type="submit" class="btn btn-co btn-rd btn-blue" ng-click="inscription()">sign up</button>
+                            </form>
+            </div>
+            
+        </div>
+    </body>
+</html>
