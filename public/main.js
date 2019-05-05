@@ -1,31 +1,29 @@
-var demoApp = angular.module('TodoApp',[]); 
-var serv = "localhost:8000";
+var todoApp = angular.module('AppToDo',['ngCookies']); //[cookies]
+serv="localhost:8000"
 
-demoApp.controller('MainController', function ($scope, $http){ 
+todoApp.controller('MainController', function ($scope, $http, $cookies){ //,$cookies
     $scope.updateData = {};
     $scope.updateListe = {};
     $scope.listeData = {};
     $scope.listeDataP = {};
     $scope.tache = [];
     $scope.tacheP = [];
-
     $scope.nameTask={};
     $scope.user = {};
     $scope.collab = {};
 
-
+    
     getTask = function(id, idx){        
         $scope.listeData.idListe = id;      
-		    $http.post('/getTask', $scope.listeData)
-			    .success(function(data) {
-            $scope.tache[idx] = data;
+		$http.post('/getTask', $scope.listeData)
+			.success(function(data) {
+                $scope.tache[idx] = data;
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
             });
     }
 
-    
     getTaskP = function(id, idx){        
         $scope.listeDataP.idListe = id;      
 		$http.post('/getTask', $scope.listeDataP)
@@ -36,73 +34,62 @@ demoApp.controller('MainController', function ($scope, $http){
 				console.log('Error: ' + data);
             });
     }
+
     getListe = function(){
         $scope.user =$cookies;
         var req = {owner : $cookies.id};
-
-        $http.get('/getList',req).then(function(resp){
-            console.log($scope.Liste);
-            $scope.Liste = resp.data
+        $http.post('/getList',req).then(function(resp){
+            console.log(" 1 : ",resp);
+            $scope.Liste = resp.data;
             i=0;
             for(l of resp.data){
-                getTask(l._id,i);
+                getTask(l._id, i);
+                i++;
+            }
+        });
+
+    }
+        var req = {collaborator : $cookies.id};
+        $http.post('/getListP',req).then(function(resp){
+            console.log(" 2 : ", resp);
+            $scope.ListeP = resp.data;
+            i=0;
+            for(l of resp.data){
+                getTaskP(l._id, i);
+                console.log(" resp : ", resp);
                 i++;
             }
         });    
     
-//à enlever
-    $http.get('/getList').then(function(resp){
 
-        $scope.Liste = resp.data
-        console.log($scope.Liste);
-        i=0;
-        for(l of resp.data){
-            getTask(l._id,i);
-            i++;
-        }
-    });//
-    var req = {collaborator : $cookies.id};
-    $http.post('/getListP',req).then(function(resp){
-        console.log(" 2 : ", resp);
-        $scope.ListeP = resp.data;
-        i=0;
-        for(l of resp.data){
-            getTaskP(l._id, i);
-            console.log(" resp : ", resp);
-            i++;
-        }
-    });    
-}
-
-//lancée au chargement de la page: check des cookies, récupération des listes
-if($cookies.user!=null){
-    $scope.user =$cookies;
-    var req = {owner : $cookies.id};
-    $http.post('/getList',req).then(function(resp){
-        console.log(" 1 : ",resp);
-        $scope.Liste = resp.data;
-        i=0;
-        for(l of resp.data){
-            getTask(l._id, i);
-            i++;
-        }
-    });
-    var req = {collaborator : $cookies.id};
-    $http.post('/getListP',req).then(function(resp){
-        console.log(" 2 : ", resp);
-        $scope.ListeP = resp.data;
-        i=0;
-        for(l of resp.data){
-            getTaskP(l._id, i);
-            i++;
-        }
-    });
-}else{
-    document.location.href= serv + "/pageconn.html";
-    } 
-    
+    //lancée au chargement de la page: check des cookies, récupération des listes
+    if($cookies.user!=null){
+        $scope.user =$cookies;
+        var req = {owner : $cookies.id};
+        $http.post('/getList',req).then(function(resp){
+            console.log(" 1 : ",resp);
+            $scope.Liste = resp.data;
+            i=0;
+            for(l of resp.data){
+                getTask(l._id, i);
+                i++;
+            }
+        });
+        var req = {collaborator : $cookies.id};
+        $http.post('/getListP',req).then(function(resp){
+            console.log(" 2 : ", resp);
+            $scope.ListeP = resp.data;
+            i=0;
+            for(l of resp.data){
+                getTaskP(l._id, i);
+                i++;
+            }
+        });
+    }else{
+        document.location.href= serv + "/connection.html";
+   }    
+ 
     $scope.createToDo = function(id){
-        console.log($scope.nameTask.text);
         var req = {
             name : $scope.nameTask.text,
             idList : id
@@ -142,11 +129,13 @@ if($cookies.user!=null){
     }
 
     $scope.updateToDo = function(id, idListe){
-        $scope.updateData.identifiant = id;
+        $scope.updateData.identifiant = $scope.toggleUT._id;
+        console.log($scope.updateData.text);
         if($scope.updateData.text!=undefined){
             $http.post('/updateToDo', $scope.updateData).success(function(data) {    
                 getListe();
-                $scope.updateData = {}
+                $scope.updateData = {};
+                $scope.toggleUT = {};
             })
             .error(function(data) {
                 console.log('Error: ' + data);
@@ -157,18 +146,21 @@ if($cookies.user!=null){
     $scope.createList = function(id){
         console.log($scope.nameList.text);
         if($scope.nameList!= undefined){
+            console.log( $cookies.id)
             var req = {
                 nameList : $scope.nameList,
-                owner : $cookies.id
+                owner : $cookies.id,
+                collaborator : []
             };
+
             $http.post('/createList',req)
             .success(function(data) {
-                $scope.nameList="";
+                $scope.nameList = "";
                 getListe();
             })
             .error(function(data) {
                 console.log('Error: ' + data);
-            });   
+            }); 
         }
     }
 
@@ -185,18 +177,117 @@ if($cookies.user!=null){
 			});
     }
 
-
     $scope.updateList = function(){
-        $scope.updateListe.identifiant= $scope._id;
+        $scope.updateListe.identifiant= $scope.toggleU._id;
         if($scope.updateListe.text!=undefined){
             $http.post('/updateList', $scope.updateListe).success(function(data) { 
                 $scope.updateListe = {}; 
                 getListe();
-               
+                $scope.toggleU = {};
             })
             .error(function(data) {
                 console.log('Error: ' + data);
             });
         }
+    }
+
+    //partage d'une liste avec des collaborateurs
+    $scope.share = function(){
+        var req = {username : $scope.collab.text};
+        $http.post('/verif',req).then(function(resp){
+            if(resp.data.length>0){
+                req = {
+                    _id : $scope.toggleS._id,
+                    collaborator : resp.data[0]._id
+                }
+                $http.post('/share', req).success(function(data){
+                    window.alert("liste : "+$scope.toggleS.name+" partagée avec "+ resp.data[0].username);
+                    $scope.collab.text ="";
+                    $scope.toggleS = {};
+                    getListe();
+                })
+            }else{
+                window.alert("ce utilisateur n'existe pas");
+            }
+        });
+    }
+
+  //  $scope.deconnexion = function(){
+    //    delete $cookies['user'];
+      //  document.location.href= serv + "/connection.html";
+    //}
+
+    $scope.shareToggle = function(list){
+        $scope.toggleS = list;
+    }
+
+    $scope.updateToggle = function(list){
+
+        $scope.toggleU = list;
+    }
+
+    $scope.updateTaskToggle = function(task){
+        console.log(task);
+        $scope.toggleUT = task;
+    }
+
+    $scope.updateTaskPToggle = function(task){
+        console.log(task);
+        $scope.toggleUTP = task;
+    }
+
+});
+
+var connectionApp = angular.module('connection', ['ngCookies']);
+connectionApp.controller('ConnectionController', function ($scope, $http, $cookies){
+   $scope.password = "";
+   $scope.username = "";
+     if($cookies.user!=null){
+        document.location.href= serv;
+     }
+    $scope.auth = function(){
+        if($scope.username && $scope.password){
+            var req = {
+                username : $scope.username,
+                password : $scope.password
+            };
+
+            $http.post('/login', req).then(function(resp){
+                if(resp.data.length>0){
+                    $cookies.user=resp.data[0].username;
+                    $cookies.id = resp.data[0]._id;
+                    document.location.href= serv;
+                }
+                else{
+                    window.alert("Verifiez le nom d'utilisateur ou le mot de passe !");
+                }
+                $scope.password="";
+                $scope.username="";
+            });
+        }
     };
-})
+
+    $scope.inscription = function(){
+        if($scope.usernameCreate && $scope.passwordCreate){
+            var req = {
+                username : $scope.usernameCreate,
+                password : $scope.passwordCreate
+            };
+
+            $http.post('/verif',req).then(function(resp){
+                if(resp.data.length==0){
+                    $http.post('/createUser',req).then(function(resp){
+
+                        $scope.usernameCreate = "";
+                        $scope.passwordCreate = "";
+                        window.alert("Insccription reussie ! ajoutez vos listes ");
+
+                    });
+                }else{
+                    window.alert("nom existant!");
+                }
+            });
+        }
+    };
+
+});
