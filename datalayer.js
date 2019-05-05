@@ -73,6 +73,34 @@ var datalayer = {
         db.collection("List").updateOne(query, {$set : list}, function(err, result){
             cb();
         });
+    },
+    verif : function(user, cb){
+        var query={username : user.username};
+        db.collection("Users").find(query).toArray(function(err,docs){
+            cb(docs);
+        });
+    },
+
+    
+    
+
+    createUser : function(user, cb){
+        var query = {
+            username : user.username,
+            password : user.password
+        }
+        db.collection("Users").insertOne(query,function(err, result){
+            cb();
+        });
+    },
+
+    share : function(collab, cb){
+        var query = {$addToSet: {collaborater : collab.collaborater}};
+        var idList = {_id : new mongodb.ObjectID(collab.idList)};
+        
+        db.collection("List").updateOne(idList, query, function(err, result){
+            cb();
+        })
     }
 };
 

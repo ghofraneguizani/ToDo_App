@@ -36,7 +36,15 @@ app.post('/getTask',function(req,res){
 
 app.get('/getList', function(req, res){
     
+    var id = {owner : req.body.owner};
     datalayer.getList(function(dtSet){      
+        res.send(dtSet);
+    })
+})
+
+app.post('/getListP', function(req, res){
+    var id = {collaborator : req.body.collaborator};
+    datalayer.getList(id,function(dtSet){     
         res.send(dtSet);
     })
 })
@@ -90,7 +98,8 @@ app.post('/createList',function(req,res){
     if( req.body.nameList != 'undefined' ){  
         var Liste = {
             name : req.body.nameList,
-            owner: req.body.owner
+            owner : req.body.owner,
+            collaborator : req.body.collaborator
             
          };    
         datalayer.createList(Liste, function(){
@@ -103,9 +112,7 @@ app.post('/createList',function(req,res){
             errorCode : "PARAM_MISSING"
         });
     }
-    
-
-        
+           
 
 });
 
@@ -127,4 +134,37 @@ app.post('/updateList', function(req,res){
 });
 
 
+
+app.post('/verif', function(req, res){
+    var id = {
+        username : req.body.username,
+    };
+    datalayer.verif(id,function(dtSet){
+        res.send(dtSet); 
+    });
+});
+
+
+
+app.post('/createUser', function(req, res){
+    console.log(req);
+    var user = {
+        username : req.body.username,
+        password : req.body.password
+    };
+    console.log(user)
+    datalayer.createUser(user, function(dtSet){
+        res.send(dtSet);
+    });
+});
+
+app.post('/share', function(req, res){
+    var collab = {
+        collaborator : req.body.collaborator,
+        idList : req.body._id
+    }
+    datalayer.share(collab, function(){
+        res.send({success:true});
+    })
+})
 
