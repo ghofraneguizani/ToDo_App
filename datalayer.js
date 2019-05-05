@@ -3,7 +3,7 @@ var mongodb= require('mongodb');
 var uri = "mongodb+srv://ghofrane:123456.ghofrane@cluster0-rzngt.mongodb.net/test?retryWrites=true";
 var client = new MongoClient(uri, {useNewUrlParser : true});
 var db;
- 
+
 var datalayer = {
 
     init : function(cb){
@@ -13,7 +13,7 @@ var datalayer = {
             cb();
         });
     },
-
+    
     login : function(user, cb){
         var query={$and : [{username : user.username}, {password : user.password}]};
         db.collection("Users").find(query).toArray(function(err,docs){
@@ -21,8 +21,6 @@ var datalayer = {
         });
     },
 
-
-    
     getTask : function(id, cb){
         var query={idList : id._id};
         db.collection("ToDo").find(query).toArray(function(err,docs){
@@ -30,8 +28,8 @@ var datalayer = {
         });
     },
 
-    getList : function(cb){
-        db.collection("List").find({}).toArray(function(err, docs){
+    getList : function(id,cb){
+        db.collection("List").find(id).toArray(function(err, docs){
             cb(docs);
         })
     },
@@ -55,6 +53,7 @@ var datalayer = {
             cb();
         });
     },
+
     createList : function(list, cb){
         db.collection("List").insertOne(list,function(err, result){
             cb();
@@ -67,7 +66,6 @@ var datalayer = {
             cb();
         });
     },
-
     updateList : function(id, list, cb){
         var query={_id : new mongodb.ObjectID(id._id)};
         db.collection("List").updateOne(query, {$set : list}, function(err, result){
@@ -81,9 +79,6 @@ var datalayer = {
         });
     },
 
-    
-    
-
     createUser : function(user, cb){
         var query = {
             username : user.username,
@@ -93,9 +88,9 @@ var datalayer = {
             cb();
         });
     },
-
+    
     share : function(collab, cb){
-        var query = {$addToSet: {collaborater : collab.collaborater}};
+        var query = {$addToSet: {collaborator : collab.collaborator}};
         var idList = {_id : new mongodb.ObjectID(collab.idList)};
         
         db.collection("List").updateOne(idList, query, function(err, result){

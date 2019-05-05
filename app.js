@@ -1,7 +1,7 @@
 const express = require('express');
 const app=express();
 var morgan = require('morgan');
-const port= 8000;
+const PORT= 8000//process.env.PORT || 8000;
 var datalayer=require('./datalayer');
 
 var bodyParser = require('body-parser');
@@ -11,7 +11,7 @@ app.use(morgan('dev'));
 app.use(express.static('public'));
 datalayer.init(function(){
     console.log("init");
-    app.listen(port);
+    app.listen(PORT);
 });
 
 
@@ -25,23 +25,21 @@ app.post('/login', function(req,res){
     })
 })
 
-
 app.post('/getTask',function(req,res){
     var id = {_id : req.body.idListe}
-    datalayer.getTask(id, function(dtSet){
-        
+    datalayer.getTask(id, function(dtSet){      
         res.send(dtSet);
     });
 });
 
-app.get('/getList', function(req, res){
-    
+app.post('/getList', function(req, res){
     var id = {owner : req.body.owner};
-    datalayer.getList(function(dtSet){      
+    datalayer.getList(id,function(dtSet){      
         res.send(dtSet);
     })
 })
 
+//récupère les listes partagées avec l'utilisateur
 app.post('/getListP', function(req, res){
     var id = {collaborator : req.body.collaborator};
     datalayer.getList(id,function(dtSet){     
@@ -92,49 +90,42 @@ app.post('/checkToDo', function(req,res){
     });
 });
 
-
-
-app.post('/createList',function(req,res){
-    if( req.body.nameList != 'undefined' ){  
-        var Liste = {
+app.post('/createList', function(req, res){
+    if(req.body.nameList != 'undefined' ){  
+        var list = {
             name : req.body.nameList,
             owner : req.body.owner,
             collaborator : req.body.collaborator
-            
-         };    
-        datalayer.createList(Liste, function(){
+        };    
+        datalayer.createList(list, function(){
             res.send({success : true});
         });
     }else{
 
-         res.send({
+        res.send({
             success : false,
             errorCode : "PARAM_MISSING"
         });
     }
-           
-
 });
 
 app.post('/deleteList', function(req, res){
     var id = { _id : req.body.identifiant  };
     datalayer.deleteList(id, function(){
         res.send({success : true});
-    });
+    })
 });
-
 
 app.post('/updateList', function(req,res){
     var id = { _id : req.body.identifiant };
-    var Liste = {name : req.body.text};
-    datalayer.updateList(id,Liste,function(){
+    var list = {name : req.body.text};
+    datalayer.updateList(id,list,function(){
             res.send({success : true});
 
     });
 });
 
-
-
+//vérifie si l'utilisateur existe ou non
 app.post('/verif', function(req, res){
     var id = {
         username : req.body.username,
@@ -144,20 +135,18 @@ app.post('/verif', function(req, res){
     });
 });
 
-
-
 app.post('/createUser', function(req, res){
     console.log(req);
     var user = {
         username : req.body.username,
         password : req.body.password
     };
-    console.log(user)
     datalayer.createUser(user, function(dtSet){
         res.send(dtSet);
     });
 });
 
+//partage de la liste avec des collaborateurs
 app.post('/share', function(req, res){
     var collab = {
         collaborator : req.body.collaborator,
@@ -167,4 +156,3 @@ app.post('/share', function(req, res){
         res.send({success:true});
     })
 })
-
